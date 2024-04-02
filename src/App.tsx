@@ -1,3 +1,11 @@
+import { AttendeeList } from "./components/attendee-list";
+import { Header } from "./components/header";
+
 export function App() {
-  return <></>;
+  return (
+    <div>
+      <Header />
+      <AttendeeList />
+    </div>
+  );
 }
