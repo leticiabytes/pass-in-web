@@ -9,6 +9,7 @@ import { IconButton } from "./icon-button";
 import { Table } from "./table/table";
 import { TableHeader } from "./table/table-header";
 import { TableCell } from "./table/table-cell";
+import { TableRow } from "./table/table-row";
 export function AttendeeList() {
   return (
     <div className="flex flex-col gap-4">
@@ -26,7 +27,7 @@ export function AttendeeList() {
 
       <Table>
         <thead>
-          <tr className="border-b border-white/10">
+          <TableRow className="border-b border-white/10">
             <TableHeader style={{ width: 48 }}>
               <input
                 type="checkbox"
@@ -38,12 +39,12 @@ export function AttendeeList() {
             <TableHeader>Data de inscrição</TableHeader>
             <TableHeader>Data de Data do check-in</TableHeader>
             <TableHeader style={{ width: 64 }}></TableHeader>
-          </tr>
+          </TableRow>
         </thead>
         <tbody>
           {Array.from({ length: 10 }).map(() => {
             return (
-              <tr
+              <TableRow
                 className="border-b border-white/10 hover:bg-white/5"
                 key={Math.random()}
               >
@@ -69,12 +70,12 @@ export function AttendeeList() {
                     <MoreHorizontal className="size-4 " />
                   </IconButton>
                 </TableCell>
-              </tr>
+              </TableRow>
             );
           })}
         </tbody>
         <tfoot>
-          <tr>
+          <TableRow>
             <TableCell colSpan={3}>Mostrando 10 de 228 itens</TableCell>
             <TableCell className="text-right" colSpan={3}>
               <div className="inline-flex items-center gap-8">
@@ -98,7 +99,7 @@ export function AttendeeList() {
                 </div>
               </div>
             </TableCell>
-          </tr>
+          </TableRow>
         </tfoot>
       </Table>
     </div>
