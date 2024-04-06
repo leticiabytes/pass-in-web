@@ -28,31 +28,63 @@ interface Attendee {
 
 export function AttendeeList() {
   const [attendess, setAttendees] = useState<Attendee[]>([]);
-
-  const [search, setSearch] = useState<string>("");
-  const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState(() => {
+    const url = new URL(window.location.toString());
+
+    if (url.searchParams.has("search")) {
+      return url.searchParams.get("search") ?? "";
+    }
+
+    return "";
+  });
+  const [page, setPage] = useState(() => {
+    const url = new URL(window.location.toString());
+
+    if (url.searchParams.has("page")) {
+      return Number(url.searchParams.get("page"));
+    }
+    return 1;
+  });
 
   const totalPages = Math.ceil(total / 10);
 
   function onSearchInputChanged(event: React.ChangeEvent<HTMLInputElement>) {
-    setSearch(event.target.value);
-    setPage(1);
+    setCurrentSearch(event.target.value);
+    setCurrentPage(1);
+  }
+
+  function setCurrentPage(page: number) {
+    const url = new URL(window.location.toString());
+    url.searchParams.set("page", String(page));
+
+    window.history.pushState({}, "", url);
+    setPage(page);
+  }
+
+  function setCurrentSearch(search: string) {
+    const url = new URL(window.location.toString());
+
+    url.searchParams.set("search", search);
+
+    window.history.pushState({}, "", url);
+
+    setSearch(search);
   }
 
   function goToFirstPage() {
-    setPage(1);
+    setCurrentPage(1);
   }
 
   function goToLastPage() {
-    setPage(totalPages);
+    setCurrentPage(totalPages);
   }
 
   function goToPreviousPage() {
-    setPage(page - 1);
+    setCurrentPage(page - 1);
   }
   function goToNextPage() {
-    setPage(page + 1);
+    setCurrentPage(page + 1);
   }
 
   useEffect(() => {
@@ -61,17 +93,16 @@ export function AttendeeList() {
     );
 
     url.searchParams.set("pageIndex", String(page - 1));
-
-    if (search.length > 0) {
+    if (search.length > 1) {
       url.searchParams.set("query", search);
     }
 
-    fetch(url).then((response) =>
-      response.json().then((data) => {
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
         setAttendees(data.attendees);
         setTotal(data.total);
-      })
-    );
+      });
   }, [page, search]);
 
   return (
@@ -82,6 +113,7 @@ export function AttendeeList() {
           <Search className="size-4 text-emerald-300" />
           <input
             type="text"
+            value={search}
             placeholder="Buscar participante"
             className="h-auto border-0 p-0 text-sm ring-0 flex-1 outline-none bg-transparent focus:ring-0"
             onChange={onSearchInputChanged}
