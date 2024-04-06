@@ -1,16 +1,50 @@
+import { useState } from "react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/pt-br";
+
 import {
   ChevronRight,
+  ChevronLeft,
   ChevronsLeft,
   ChevronsRight,
   MoreHorizontal,
   Search,
 } from "lucide-react";
+
 import { IconButton } from "./icon-button";
-import { Table } from "./table/table";
-import { TableHeader } from "./table/table-header";
-import { TableCell } from "./table/table-cell";
-import { TableRow } from "./table/table-row";
+import { Table, TableCell, TableHeader, TableRow } from "./table";
+
+import { attendess } from "../data/attendees";
+
+dayjs.extend(relativeTime);
+dayjs.locale("pt-br");
+
 export function AttendeeList() {
+  const [search, setSearch] = useState<string>("");
+  const [page, setPage] = useState(1);
+
+  const totalPages = Math.ceil(attendess.length / 10);
+
+  function onSearchInputChanged(event: React.ChangeEvent<HTMLInputElement>) {
+    setSearch(event.target.value);
+  }
+
+  function goToFirstPage() {
+    setPage(1);
+  }
+
+  function goToLastPage() {
+    setPage(totalPages);
+  }
+
+  function goToPreviousPage() {
+    setPage(page - 1);
+  }
+  function goToNextPage() {
+    setPage(page + 1);
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-3 items-center">
@@ -21,6 +55,7 @@ export function AttendeeList() {
             type="text"
             placeholder="Buscar participante"
             className="h-auto border-0 p-0 text-sm ring-0 flex-1 outline-none bg-transparent"
+            onChange={onSearchInputChanged}
           />
         </div>
       </div>
@@ -42,11 +77,11 @@ export function AttendeeList() {
           </TableRow>
         </thead>
         <tbody>
-          {Array.from({ length: 10 }).map(() => {
+          {attendess.slice((page - 1) * 10, page * 10).map((attendee) => {
             return (
               <TableRow
                 className="border-b border-white/10 hover:bg-white/5"
-                key={Math.random()}
+                key={attendee.id}
               >
                 <TableCell>
                   <input
@@ -54,17 +89,17 @@ export function AttendeeList() {
                     className="size-4 bg-black/20 rounded border border-white/10 accent-orange-300"
                   />
                 </TableCell>
-                <TableCell>12312</TableCell>
+                <TableCell>{attendee.id}</TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1">
                     <span className="font-semibold text-white">
-                      Leticia Vieira
+                      {attendee.name}
                     </span>
-                    <span>leticia@email.com</span>
+                    <span>{attendee.email}</span>
                   </div>
                 </TableCell>
-                <TableCell>7 dias atrás</TableCell>
-                <TableCell>3 dias atrás</TableCell>
+                <TableCell>{dayjs().to(attendee.createdAt)}</TableCell>
+                <TableCell>{dayjs().to(attendee.checkedInAt)}</TableCell>
                 <TableCell>
                   <IconButton transparent>
                     <MoreHorizontal className="size-4 " />
@@ -76,24 +111,34 @@ export function AttendeeList() {
         </tbody>
         <tfoot>
           <TableRow>
-            <TableCell colSpan={3}>Mostrando 10 de 228 itens</TableCell>
+            <TableCell colSpan={3}>
+              Mostrando 10 de {attendess.length} itens
+            </TableCell>
             <TableCell className="text-right" colSpan={3}>
               <div className="inline-flex items-center gap-8">
-                <span>Página 1 de 10</span>
+                <span>
+                  Página {page} de {totalPages}
+                </span>
                 <div className="flex gap-1.5">
-                  <IconButton>
+                  <IconButton onClick={goToFirstPage} disabled={page === 1}>
                     <ChevronsLeft className="size-4 " />
                   </IconButton>
 
-                  <IconButton>
-                    <ChevronsLeft className="size-4 " />
+                  <IconButton onClick={goToPreviousPage} disabled={page === 1}>
+                    <ChevronLeft className="size-4 " />
                   </IconButton>
 
-                  <IconButton>
+                  <IconButton
+                    onClick={goToNextPage}
+                    disabled={page === totalPages}
+                  >
                     <ChevronRight className="size-4 " />
                   </IconButton>
 
-                  <IconButton>
+                  <IconButton
+                    onClick={goToLastPage}
+                    disabled={page === totalPages}
+                  >
                     <ChevronsRight className="size-4 " />
                   </IconButton>
                 </div>
