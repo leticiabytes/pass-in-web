@@ -37,6 +37,7 @@ export function AttendeeList() {
 
   function onSearchInputChanged(event: React.ChangeEvent<HTMLInputElement>) {
     setSearch(event.target.value);
+    setPage(1);
   }
 
   function goToFirstPage() {
@@ -55,17 +56,23 @@ export function AttendeeList() {
   }
 
   useEffect(() => {
-    fetch(
-      `http://localhost:3333/events/9e9bd979-9d10-4915-b339-3786b1634f33/attendees?pageIndex=${
-        page - 1
-      }`
-    ).then((response) =>
+    const url = new URL(
+      "http://localhost:3333/events/9e9bd979-9d10-4915-b339-3786b1634f33/attendees"
+    );
+
+    url.searchParams.set("pageIndex", String(page - 1));
+
+    if (search.length > 0) {
+      url.searchParams.set("query", search);
+    }
+
+    fetch(url).then((response) =>
       response.json().then((data) => {
         setAttendees(data.attendees);
         setTotal(data.total);
       })
     );
-  }, [page]);
+  }, [page, search]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -76,7 +83,7 @@ export function AttendeeList() {
           <input
             type="text"
             placeholder="Buscar participante"
-            className="h-auto border-0 p-0 text-sm ring-0 flex-1 outline-none bg-transparent"
+            className="h-auto border-0 p-0 text-sm ring-0 flex-1 outline-none bg-transparent focus:ring-0"
             onChange={onSearchInputChanged}
           />
         </div>
